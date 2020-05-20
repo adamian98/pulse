@@ -7,31 +7,6 @@ import torchvision
 from math import log10, ceil
 import argparse
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='PULSE')
-
-    #I/O arguments
-    parser.add_argument('-input_dir', type=str, default='input', help='input data directory')
-    parser.add_argument('-output_dir', type=str, default='runs', help='output data directory')
-    parser.add_argument('-cache_dir', type=str, default='cache', help='cache directory for model weights')
-    parser.add_argument('-duplicates', type=int, default=1, help='How many HR images to produce for every image in the input directory')
-
-    #PULSE arguments
-    parser.add_argument('-seed', type=int, help='manual seed to use')
-    parser.add_argument('-loss_str', type=str, default="100*L2+0.05*GEOCROSS", help='Loss function to use')
-    parser.add_argument('-eps', type=float, default=1e-3, help='Target for downscaling loss (L2)')
-    parser.add_argument('-noise_type', type=str, default='trainable', help='zero, fixed, or trainable')
-    parser.add_argument('-num_trainable_noise_layers', type=int, default=5, help='Number of noise layers to optimize')
-    parser.add_argument('-tile_latent', action='store_true', help='Whether to forcibly tile the same latent 18 times')
-    parser.add_argument('-bad_noise_layers', type=str, default="17", help='List of noise layers to zero out to improve image quality')
-    parser.add_argument('-opt_name', type=str, default='adam', help='Optimizer to use in projected gradient descent')
-    parser.add_argument('-learning_rate', type=float, default=0.4, help='Learning rate to use during optimization')
-    parser.add_argument('-steps', type=int, default=100, help='Number of optimization steps')
-    parser.add_argument('-lr_schedule', type=str, default='linear1cycledrop', help='fixed, linear1cycledrop, linear1cycle')
-    parser.add_argument('-save_intermediate', action='store_true', help='Whether to store and save intermediate HR and LR images during optimization')
-
-    kwargs = vars(parser.parse_args())
-
 class Images(Dataset):
     def __init__(self, root_dir, duplicates):
         self.root_path = Path(root_dir)
@@ -48,6 +23,30 @@ class Images(Dataset):
             return image,img_path.stem
         else:
             return image,img_path.stem+f"_{(idx % self.duplicates)+1}"
+
+parser = argparse.ArgumentParser(description='PULSE')
+
+#I/O arguments
+parser.add_argument('-input_dir', type=str, default='input', help='input data directory')
+parser.add_argument('-output_dir', type=str, default='runs', help='output data directory')
+parser.add_argument('-cache_dir', type=str, default='cache', help='cache directory for model weights')
+parser.add_argument('-duplicates', type=int, default=1, help='How many HR images to produce for every image in the input directory')
+
+#PULSE arguments
+parser.add_argument('-seed', type=int, help='manual seed to use')
+parser.add_argument('-loss_str', type=str, default="100*L2+0.05*GEOCROSS", help='Loss function to use')
+parser.add_argument('-eps', type=float, default=1e-3, help='Target for downscaling loss (L2)')
+parser.add_argument('-noise_type', type=str, default='trainable', help='zero, fixed, or trainable')
+parser.add_argument('-num_trainable_noise_layers', type=int, default=5, help='Number of noise layers to optimize')
+parser.add_argument('-tile_latent', action='store_true', help='Whether to forcibly tile the same latent 18 times')
+parser.add_argument('-bad_noise_layers', type=str, default="17", help='List of noise layers to zero out to improve image quality')
+parser.add_argument('-opt_name', type=str, default='adam', help='Optimizer to use in projected gradient descent')
+parser.add_argument('-learning_rate', type=float, default=0.4, help='Learning rate to use during optimization')
+parser.add_argument('-steps', type=int, default=100, help='Number of optimization steps')
+parser.add_argument('-lr_schedule', type=str, default='linear1cycledrop', help='fixed, linear1cycledrop, linear1cycle')
+parser.add_argument('-save_intermediate', action='store_true', help='Whether to store and save intermediate HR and LR images during optimization')
+
+kwargs = vars(parser.parse_args())
 
 dataset = Images(kwargs["input_dir"], duplicates=kwargs["duplicates"])
 out_path = Path(kwargs["output_dir"])
