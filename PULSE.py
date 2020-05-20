@@ -11,14 +11,15 @@ from drive import open_url
 
 
 class PULSE(torch.nn.Module):
-    def __init__(self, cache_dir):
+    def __init__(self, cache_dir, verbose=True):
         super(PULSE, self).__init__()
+
         self.synthesis = G_synthesis().cuda()
+        self.verbose = verbose
 
         cache_dir = Path(cache_dir)
         cache_dir.mkdir(parents=True, exist_ok = True)
-
-        print("Loading Synthesis Network")
+        if not self.verbose: print("Loading Synthesis Network")
         with open_url("https://drive.google.com/uc?id=1TCViX1YpQyRsklTVYEJwdbmK91vklCo8", cache_dir=cache_dir) as f:
             self.synthesis.load_state_dict(torch.load(f))
 
@@ -30,21 +31,20 @@ class PULSE(torch.nn.Module):
         if Path("gaussian_fit.pt").exists():
             self.gaussian_fit = torch.load("gaussian_fit.pt")
         else:
-            print("Fitting Linear Layer to Mapping Network")
-            print("\tLoading Mapping Network")
+            if not self.verbose: print("\tLoading Mapping Network")
             mapping = G_mapping().cuda()
 
             with open_url("https://drive.google.com/uc?id=14R6iHGf5iuVx3DMNsACAl7eBr7Vdpd0k", cache_dir=cache_dir) as f:
                     mapping.load_state_dict(torch.load(f))
 
-            print("\tRunning Mapping Network")
+            if not self.verbose: print("\tRunning Mapping Network")
             with torch.no_grad():
                 torch.manual_seed(0)
                 latent = torch.randn((1000000,512),dtype=torch.float32, device="cuda")
                 latent_out = torch.nn.LeakyReLU(5)(mapping(latent))
                 self.gaussian_fit = {"mean": latent_out.mean(0), "std": latent_out.std(0)}
                 torch.save(self.gaussian_fit,"gaussian_fit.pt")
-                print("\tSaved \"gaussian_fit.pt\"")
+                if not self.verbose: print("\tSaved \"gaussian_fit.pt\"")
 
     def forward(self, ref_im,
                 seed,
@@ -130,7 +130,7 @@ class PULSE(torch.nn.Module):
             int_HR = []
             int_LR = []
 
-        print("Optimizing")
+        if not self.verbose: print("Optimizing")
         for j in range(steps):
             opt.opt.zero_grad()
 
@@ -168,7 +168,7 @@ class PULSE(torch.nn.Module):
 
         total_t = time.time()-start_t
         current_info = f' | time: {total_t:.1f} | it/s: {(j+1)/total_t:.2f} | batchsize: {batch_size}'
-        print(best_summary+current_info)
+        if not self.verbose: print(best_summary+current_info)
 
         if(save_intermediate):
             return best_im.cpu().detach().clamp(0,1), int_HR, int_LR
