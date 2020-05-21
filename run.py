@@ -31,6 +31,7 @@ parser.add_argument('-input_dir', type=str, default='input', help='input data di
 parser.add_argument('-output_dir', type=str, default='runs', help='output data directory')
 parser.add_argument('-cache_dir', type=str, default='cache', help='cache directory for model weights')
 parser.add_argument('-duplicates', type=int, default=1, help='How many HR images to produce for every image in the input directory')
+parser.add_argument('-batch_size', type=int, default=1, help='Batch size to use during optimization')
 
 #PULSE arguments
 parser.add_argument('-seed', type=int, help='manual seed to use')
@@ -47,12 +48,13 @@ parser.add_argument('-lr_schedule', type=str, default='linear1cycledrop', help='
 parser.add_argument('-save_intermediate', action='store_true', help='Whether to store and save intermediate HR and LR images during optimization')
 
 kwargs = vars(parser.parse_args())
+kwargs["save_intermediate"]=True
 
 dataset = Images(kwargs["input_dir"], duplicates=kwargs["duplicates"])
 out_path = Path(kwargs["output_dir"])
 out_path.mkdir(parents=True, exist_ok=True)
 
-dataloader = DataLoader(dataset, batch_size=1)
+dataloader = DataLoader(dataset, batch_size=kwargs["batch_size"])
 
 model = PULSE(cache_dir=kwargs["cache_dir"])
 model = DataParallel(model)
@@ -61,21 +63,20 @@ toPIL = torchvision.transforms.ToPILImage()
 
 for ref_im, ref_im_name in dataloader:
     if(kwargs["save_intermediate"]):
-        out_im, int_HR, int_LR = model(ref_im,**kwargs)
-    else:
-        out_im = model(ref_im,**kwargs)
-
-    for i in range(len(out_im)):
-        toPIL(out_im[i].cpu().detach().clamp(0, 1)).save(
-            out_path / f"{ref_im_name[i]}.png")
-        if(kwargs["save_intermediate"]):
-            padding = ceil(log10(100))
+        padding = ceil(log10(100))
+        for i in range(kwargs["batch_size"]):
             int_path_HR = Path(out_path / ref_im_name[i] / "HR")
             int_path_LR = Path(out_path / ref_im_name[i] / "LR")
             int_path_HR.mkdir(parents=True, exist_ok=True)
             int_path_LR.mkdir(parents=True, exist_ok=True)
-            for j,(HR,LR) in enumerate(zip(int_HR,int_LR)):
+        for j,(HR,LR) in enumerate(model(ref_im,**kwargs)):
+            for i in range(kwargs["batch_size"]):
                 toPIL(HR[i].cpu().detach().clamp(0, 1)).save(
                     int_path_HR / f"{ref_im_name[i]}_{j:0{padding}}.png")
                 toPIL(LR[i].cpu().detach().clamp(0, 1)).save(
                     int_path_LR / f"{ref_im_name[i]}_{j:0{padding}}.png")
+    else:
+        out_im = model(ref_im,**kwargs)
+        for i in range(kwargs["batch_size"]):
+            toPIL(out_im[i].cpu().detach().clamp(0, 1)).save(
+                out_path / f"{ref_im_name[i]}.png")

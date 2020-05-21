@@ -126,9 +126,6 @@ class PULSE(torch.nn.Module):
         min_loss = np.inf
         best_summary = ""
         start_t = time.time()
-        if(save_intermediate):
-            int_HR = []
-            int_LR = []
 
         if self.verbose: print("Optimizing")
         for j in range(steps):
@@ -150,17 +147,16 @@ class PULSE(torch.nn.Module):
             loss, loss_dict = loss_builder(latent_in, gen_im)
             loss_dict['TOTAL'] = loss
 
-            # Save intermediate HR and LR images
-            if(save_intermediate):
-                int_HR.append(gen_im.cpu().detach().clamp(0, 1))
-                int_LR.append(loss_builder.D(gen_im).cpu().detach().clamp(0, 1))
-
             # Save best summary for log
             if(loss < min_loss):
                 min_loss = loss
                 best_summary = f'BEST ({j+1}) | '+' | '.join(
                 [f'{x}: {y:.4f}' for x, y in loss_dict.items()])
                 best_im = gen_im.clone()
+
+            # Save intermediate HR and LR images
+            if(save_intermediate):
+                yield (best_im.cpu().detach().clamp(0, 1),loss_builder.D(best_im).cpu().detach().clamp(0, 1))
 
             loss.backward()
             opt.step()
@@ -170,7 +166,4 @@ class PULSE(torch.nn.Module):
         current_info = f' | time: {total_t:.1f} | it/s: {(j+1)/total_t:.2f} | batchsize: {batch_size}'
         if self.verbose: print(best_summary+current_info)
 
-        if(save_intermediate):
-            return best_im.cpu().detach().clamp(0,1), int_HR, int_LR
-        else:
-            return best_im.cpu().detach().clamp(0,1)
+        return best_im.cpu().detach().clamp(0,1)
