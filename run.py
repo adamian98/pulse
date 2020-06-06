@@ -48,7 +48,6 @@ parser.add_argument('-lr_schedule', type=str, default='linear1cycledrop', help='
 parser.add_argument('-save_intermediate', action='store_true', help='Whether to store and save intermediate HR and LR images during optimization')
 
 kwargs = vars(parser.parse_args())
-kwargs["save_intermediate"]=True
 
 dataset = Images(kwargs["input_dir"], duplicates=kwargs["duplicates"])
 out_path = Path(kwargs["output_dir"])
