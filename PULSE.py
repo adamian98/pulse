@@ -126,6 +126,8 @@ class PULSE(torch.nn.Module):
         min_loss = np.inf
         best_summary = ""
         start_t = time.time()
+        gen_im = None
+
 
         if self.verbose: print("Optimizing")
         for j in range(steps):
@@ -166,4 +168,4 @@ class PULSE(torch.nn.Module):
         current_info = f' | time: {total_t:.1f} | it/s: {(j+1)/total_t:.2f} | batchsize: {batch_size}'
         if self.verbose: print(best_summary+current_info)
 
-        return best_im.cpu().detach().clamp(0,1)
+        yield (gen_im.clone().cpu().detach().clamp(0, 1),loss_builder.D(best_im).cpu().detach().clamp(0, 1))
