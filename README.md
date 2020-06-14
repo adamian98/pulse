@@ -34,11 +34,32 @@ The main file of interest for applying PULSE is `run.py`. A full list of argumen
 
 ### Prereqs
 
-You will need to install cmake first (required for dlib, which is used for face alignment). Currently the code only works with CUDA installed (and therefore requires an appropriate GPU) and has been tested on Linux. For the full set of required Python packages, create a Conda environment from the provided YAML, e.g.
+You will need to install cmake first (required for dlib, which is used for face alignment). Currently the code only works with CUDA installed (and therefore requires an appropriate GPU) and has been tested on Linux and Windows. For the full set of required Python packages, create a Conda environment from the provided YAML, e.g.
+
 ```
-conda create -f pulse.yml
+conda create -f pulse.yml 
 ```
-Finally, you will need an internet connection the first time you run the code as it will automatically download the relevant pretrained model from Google Drive (if it has already been downloaded, it will use the local copy).
+or (Anaconda on Windows):
+```
+conda env create -n pulse -f pulse.yml
+conda activate pulse
+```
+
+In some environments (e.g. on Windows), you may have to edit the pulse.yml to remove the version specific hash on each dependency and remove any dependency that still throws an error after running ```conda env create...``` (such as readline)
+```
+dependencies
+  - blas=1.0=mkl
+  ...
+```
+to
+```
+dependencies
+  - blas=1.0
+ ...
+```
+
+Finally, you will need an internet connection the first time you run the code as it will automatically download the relevant pretrained model from Google Drive (if it has already been downloaded, it will use the local copy). In the event that the public google drive is out of capacity, add the files to your own google drive instead, get their share URL and replace the ID in the https://drive.google.com/uc?=ID links in ```align_face.py``` and ```PULSE.py``` with the new file ids from share URL from your own google drive.
+ 
 
 ### Data
 
