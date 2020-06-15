@@ -11,7 +11,6 @@ Table of Contents
 - [PULSE: Self-Supervised Photo Upsampling via Latent Space Exploration of Generative Models](#pulse-self-supervised-photo-upsampling-via-latent-space-exploration-of-generative-models)
 - [Table of Contents](#table-of-contents)
   - [What does it do?](#what-does-it-do)
-  - [How do I use it?](#how-do-i-use-it)
   - [Usage](#usage)
     - [Prereqs](#prereqs)
     - [Data](#data)
@@ -20,13 +19,6 @@ Table of Contents
 Given a low-resolution input image, PULSE searches the outputs of a generative model (here, [StyleGAN](https://github.com/NVlabs/stylegan)) for high-resolution images that are perceptually realistic and downscale correctly.
 
 ![Transformation Preview](./readme_resources/transformation.gif)
-
-## How do I use it?
-
-The easiest way to apply PULSE to your own images is with our interactive demo, found at https://colab.research.google.com/drive/1-cyGV0FoSrHcQSVq3gKOymGTMt0g63Xc?usp=sharing#sandboxMode=true. 
-
-If you want to try using this codebase, continue on.
-
 
 ## Usage
 
@@ -54,5 +46,3 @@ Once your data is appropriately formatted, all you need to do is
 python run.py
 ```
 Enjoy!
-
-*Contact both Sachit Menon and Alex Damian (sachit.menon@duke.edu and alexandru.damian@duke.edu) for questions regarding this work.*
