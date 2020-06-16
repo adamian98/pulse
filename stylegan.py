@@ -260,7 +260,7 @@ class LayerEpilogue(nn.Module):
             self.noise = None
         layers.append(('activation', activation_layer))
         if use_pixel_norm:
-            layers.append(('pixel_norm', PixelNorm()))
+            layers.append(('pixel_norm', PixelNormLayer()))
         if use_instance_norm:
             layers.append(('instance_norm', nn.InstanceNorm2d(channels)))
 
