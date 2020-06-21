@@ -36,7 +36,7 @@ parser.add_argument('-batch_size', type=int, default=1, help='Batch size to use 
 #PULSE arguments
 parser.add_argument('-seed', type=int, help='manual seed to use')
 parser.add_argument('-loss_str', type=str, default="100*L2+0.05*GEOCROSS", help='Loss function to use')
-parser.add_argument('-eps', type=float, default=1e-3, help='Target for downscaling loss (L2)')
+parser.add_argument('-eps', type=float, default=2e-3, help='Target for downscaling loss (L2)')
 parser.add_argument('-noise_type', type=str, default='trainable', help='zero, fixed, or trainable')
 parser.add_argument('-num_trainable_noise_layers', type=int, default=5, help='Number of noise layers to optimize')
 parser.add_argument('-tile_latent', action='store_true', help='Whether to forcibly tile the same latent 18 times')
