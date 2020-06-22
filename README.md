@@ -1,11 +1,11 @@
 # PULSE: Self-Supervised Photo Upsampling via Latent Space Exploration of Generative Models
-Code accompanying CVPR'20 paper of the same title. Paper link: https://drive.google.com/file/d/1fV7FsmunjDuRrsn4KYf2Efwp0FNBtcR4/view
+Code accompanying CVPR'20 paper of the same title. Paper link: https://arxiv.org/abs/2003.03808
 
 ## NOTE
 
 We have noticed a lot of concern that PULSE will be used to identify individuals whose faces have been blurred out. We want to emphasize that this is impossible - **PULSE makes imaginary faces of people who do not exist, which should not be confused for real people.** It will **not** help identify or reconstruct the original image.
 
-We also want to address concerns of bias in PULSE's outputs. It does appear that PULSE is producing white faces much more frequently than faces of people of color. **We have included a new section in our [paper](https://drive.google.com/file/d/1fV7FsmunjDuRrsn4KYf2Efwp0FNBtcR4/view) directly addressing this issue in more detail.**
+We also want to address concerns of bias in PULSE's outputs. It does appear that PULSE is producing white faces much more frequently than faces of people of color. This bias is likely inherited from the dataset StyleGAN was trained on (see [Salminen et al., 2020](https://dl.acm.org/doi/pdf/10.1145/3334480.3382791)), though there could be other factors that we are unaware of. We recognize that bias like this is a critical issue in the fields of machine learning and computer vision. We’ve reached out to the original creator of StyleGAN and FFHQ, NVIDIA, about this issue. Our hope is that this will lead to the development of methods that don’t display such behavior. We will also be including a new section in our paper directly addressing this bias in more detail.
 
 ---
 
