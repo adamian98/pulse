@@ -19,9 +19,14 @@ class PULSE(torch.nn.Module):
 
         cache_dir = Path(cache_dir)
         cache_dir.mkdir(parents=True, exist_ok = True)
-        if self.verbose: print("Loading Synthesis Network")
-        with open_url("https://drive.google.com/uc?id=1TCViX1YpQyRsklTVYEJwdbmK91vklCo8", cache_dir=cache_dir, verbose=verbose) as f:
-            self.synthesis.load_state_dict(torch.load(f))
+        if self.verbose:
+            print("Loading Synthesis Network")
+        synthesis_cached = f"{cache_dir}/synthesis.pt"
+        if Path(synthesis_cached).exists():
+            self.synthesis.load_state_dict(torch.load(synthesis_cached))
+        else:
+            with open_url("https://drive.google.com/uc?id=1TCViX1YpQyRsklTVYEJwdbmK91vklCo8", cache_dir=cache_dir, verbose=verbose) as f:
+                self.synthesis.load_state_dict(torch.load(f))
 
         for param in self.synthesis.parameters():
             param.requires_grad = False
@@ -31,10 +36,15 @@ class PULSE(torch.nn.Module):
         if Path("gaussian_fit.pt").exists():
             self.gaussian_fit = torch.load("gaussian_fit.pt")
         else:
-            if self.verbose: print("\tLoading Mapping Network")
+            if self.verbose:
+                print("\tLoading Mapping Network")
             mapping = G_mapping().cuda()
 
-            with open_url("https://drive.google.com/uc?id=14R6iHGf5iuVx3DMNsACAl7eBr7Vdpd0k", cache_dir=cache_dir, verbose=verbose) as f:
+            mapping_cached = f"{cache_dir}/mapping.pt"
+            if Path(mapping_cached).exists():
+                mapping.load_state_dict(torch.load(mapping_cached))
+            else:
+                with open_url("https://drive.google.com/uc?id=14R6iHGf5iuVx3DMNsACAl7eBr7Vdpd0k", cache_dir=cache_dir, verbose=verbose) as f:
                     mapping.load_state_dict(torch.load(f))
 
             if self.verbose: print("\tRunning Mapping Network")
