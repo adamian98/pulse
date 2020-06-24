@@ -46,6 +46,8 @@ parser.add_argument('-learning_rate', type=float, default=0.4, help='Learning ra
 parser.add_argument('-steps', type=int, default=100, help='Number of optimization steps')
 parser.add_argument('-lr_schedule', type=str, default='linear1cycledrop', help='fixed, linear1cycledrop, linear1cycle')
 parser.add_argument('-save_intermediate', action='store_true', help='Whether to store and save intermediate HR and LR images during optimization')
+parser.add_argument('-synthesis_path', type=str, default=None,  help='Path to synthesis.pt file. If not specified, fetched from Google Drive')
+parser.add_argument('-mapping_path', type=str, default=None, help='Path to mapping.pt file. If not specified, fetched from Google Drive')
 
 kwargs = vars(parser.parse_args())
 
@@ -55,7 +57,7 @@ out_path.mkdir(parents=True, exist_ok=True)
 
 dataloader = DataLoader(dataset, batch_size=kwargs["batch_size"])
 
-model = PULSE(cache_dir=kwargs["cache_dir"])
+model = PULSE(cache_dir=kwargs["cache_dir"], synthesis_path=kwargs["synthesis_path"], mapping_path=kwargs["mapping_path"])
 model = DataParallel(model)
 
 toPIL = torchvision.transforms.ToPILImage()
