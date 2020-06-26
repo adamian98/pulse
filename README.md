@@ -31,7 +31,9 @@ Given a low-resolution input image, PULSE searches the outputs of a generative m
 
 The main file of interest for applying PULSE is `run.py`. A full list of arguments with descriptions can be found in that file; here we describe those relevant to getting started.
 
-### Prereqs
+### Installation
+
+#### Manually
 
 You will need to install cmake first (required for dlib, which is used for face alignment). Currently the code only works with CUDA installed (and therefore requires an appropriate GPU) and has been tested on Linux and Windows. For the full set of required Python packages, create a Conda environment from the provided YAML, e.g.
 
@@ -58,7 +60,15 @@ dependencies
 ```
 
 Finally, you will need an internet connection the first time you run the code as it will automatically download the relevant pretrained model from Google Drive (if it has already been downloaded, it will use the local copy). In the event that the public Google Drive is out of capacity, add the files to your own Google Drive instead; get the share URL and replace the ID in the https://drive.google.com/uc?=ID links in ```align_face.py``` and ```PULSE.py``` with the new file ids from the share URL given by your own Drive file.
- 
+
+#### Using Docker
+ 1. [Install Docker](https://docs.docker.com/get-docker/)
+ 2. Verify the content of `Dockerfile` in the repo, update the first line `FROM nvidia/cuda:10.2-runtime` according to the Cuda version on your computer.
+ 3. From the repo folder, execute `docker build -t pulse:latest .`
+ 4. All the times you need to run the pulse code:
+ * From the repo folder, execute `docker run -it --rm --gpus all --name pulse --entrypoint bash -v "$PWD:/home/pulse" pulse:latest`. The "-v" synchronizes your local folder "pulse" to "/home/pulse" in the docker so that you can easily have your tests pictures ("inputs" or "realpics") inside the docker. You might need to change `--gpus all` by `--runtime=nvidia` if your Docker version is older.
+ * Once you are in the docker container, activate the python env `conda activate pulse`
+ * Run pulse as usual (see following sections)
 
 ### Data
 
