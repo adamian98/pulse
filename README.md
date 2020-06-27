@@ -1,11 +1,11 @@
 # PULSE: Self-Supervised Photo Upsampling via Latent Space Exploration of Generative Models
-Code accompanying CVPR'20 paper of the same title. Paper link: https://drive.google.com/file/d/1fV7FsmunjDuRrsn4KYf2Efwp0FNBtcR4/view
+Code accompanying CVPR'20 paper of the same title. Paper link: https://arxiv.org/pdf/2003.03808.pdf
 
 ## NOTE
 
 We have noticed a lot of concern that PULSE will be used to identify individuals whose faces have been blurred out. We want to emphasize that this is impossible - **PULSE makes imaginary faces of people who do not exist, which should not be confused for real people.** It will **not** help identify or reconstruct the original image.
 
-We also want to address concerns of bias in PULSE. **We have now included a new section in the [paper](https://drive.google.com/file/d/1fV7FsmunjDuRrsn4KYf2Efwp0FNBtcR4/view) and an accompanying model card directly addressing this bias.**
+We also want to address concerns of bias in PULSE. **We have now included a new section in the [paper](https://arxiv.org/pdf/2003.03808.pdf) and an accompanying model card directly addressing this bias.**
 
 ---
 
