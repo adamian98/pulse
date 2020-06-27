@@ -66,8 +66,6 @@ By default, input data for `run.py` should be placed in `./input/` (though this 
 
 Note that if your data begins at a low resolution already, downscaling it further will retain very little information. In this case, you may wish to bicubically upsample (usually, to 1024x1024) and allow `align_face.py` to downscale for you.  
 
-The dataset we evaluated on was [CelebA-HQ](https://github.com/tkarras/progressive_growing_of_gans), but in our experience PULSE works with any picture of a realistic face.
-
 ### Applying PULSE
 Once your data is appropriately formatted, all you need to do is
 ```
