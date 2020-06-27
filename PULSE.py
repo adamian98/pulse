@@ -11,7 +11,7 @@ from drive import open_url
 
 
 class PULSE(torch.nn.Module):
-    def __init__(self, cache_dir, verbose=True):
+    def __init__(self, cache_dir, synthesis_path=None, mapping_path=None, verbose=True):
         super(PULSE, self).__init__()
 
         self.synthesis = G_synthesis().cuda()
@@ -20,7 +20,11 @@ class PULSE(torch.nn.Module):
         cache_dir = Path(cache_dir)
         cache_dir.mkdir(parents=True, exist_ok = True)
         if self.verbose: print("Loading Synthesis Network")
-        with open_url("https://drive.google.com/uc?id=1TCViX1YpQyRsklTVYEJwdbmK91vklCo8", cache_dir=cache_dir, verbose=verbose) as f:
+        if synthesis_path is None:
+            f = open_url("https://drive.google.com/uc?id=1TCViX1YpQyRsklTVYEJwdbmK91vklCo8", cache_dir=cache_dir, verbose=verbose)
+        else:
+            f = open(synthesis_path, "rb")
+        with f:
             self.synthesis.load_state_dict(torch.load(f))
 
         for param in self.synthesis.parameters():
@@ -34,8 +38,12 @@ class PULSE(torch.nn.Module):
             if self.verbose: print("\tLoading Mapping Network")
             mapping = G_mapping().cuda()
 
-            with open_url("https://drive.google.com/uc?id=14R6iHGf5iuVx3DMNsACAl7eBr7Vdpd0k", cache_dir=cache_dir, verbose=verbose) as f:
-                    mapping.load_state_dict(torch.load(f))
+            if mapping_path is None:
+                f = open_url("https://drive.google.com/uc?id=14R6iHGf5iuVx3DMNsACAl7eBr7Vdpd0k", cache_dir=cache_dir, verbose=verbose)
+            else:
+                f = open(mapping_path, "rb")
+            with f:
+                mapping.load_state_dict(torch.load(f))
 
             if self.verbose: print("\tRunning Mapping Network")
             with torch.no_grad():
@@ -120,7 +128,7 @@ class PULSE(torch.nn.Module):
         }
         schedule_func = schedule_dict[lr_schedule]
         scheduler = torch.optim.lr_scheduler.LambdaLR(opt.opt, schedule_func)
-        
+
         loss_builder = LossBuilder(ref_im, loss_str, eps).cuda()
 
         min_loss = np.inf
