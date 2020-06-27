@@ -36,7 +36,7 @@ The main file of interest for applying PULSE is `run.py`. A full list of argumen
 You will need to install cmake first (required for dlib, which is used for face alignment). Currently the code only works with CUDA installed (and therefore requires an appropriate GPU) and has been tested on Linux and Windows. For the full set of required Python packages, create a Conda environment from the provided YAML, e.g.
 
 ```
-conda create -f pulse.yml 
+conda env create -f pulse.yml 
 ```
 or (Anaconda on Windows):
 ```
