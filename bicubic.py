@@ -29,7 +29,7 @@ class BicubicDownSample(nn.Module):
         self.k1 = torch.cat([k1, k1, k1], dim=0)
         k2 = torch.reshape(k, shape=(1, 1, 1, size))
         self.k2 = torch.cat([k2, k2, k2], dim=0)
-        self.cuda = '.cuda' if cuda else ''
+        self.cuda = '.cuda' if torch.cuda.is_available() else ''
         self.padding = padding
         for param in self.parameters():
             param.requires_grad = False

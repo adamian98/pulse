@@ -10,11 +10,14 @@ from functools import partial
 from drive import open_url
 
 
+
+
 class PULSE(torch.nn.Module):
     def __init__(self, cache_dir, verbose=True):
         super(PULSE, self).__init__()
 
-        self.synthesis = G_synthesis().cuda()
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.synthesis = G_synthesis().to(self.device)
         self.verbose = verbose
 
         cache_dir = Path(cache_dir)
@@ -29,10 +32,10 @@ class PULSE(torch.nn.Module):
         self.lrelu = torch.nn.LeakyReLU(negative_slope=0.2)
 
         if Path("gaussian_fit.pt").exists():
-            self.gaussian_fit = torch.load("gaussian_fit.pt")
+            self.gaussian_fit = torch.load("gaussian_fit.pt", map_location=self.device)
         else:
             if self.verbose: print("\tLoading Mapping Network")
-            mapping = G_mapping().cuda()
+            mapping = G_mapping().to(self.device)
 
             with open_url("https://drive.google.com/uc?id=14R6iHGf5iuVx3DMNsACAl7eBr7Vdpd0k", cache_dir=cache_dir, verbose=verbose) as f:
                     mapping.load_state_dict(torch.load(f))
@@ -40,7 +43,7 @@ class PULSE(torch.nn.Module):
             if self.verbose: print("\tRunning Mapping Network")
             with torch.no_grad():
                 torch.manual_seed(0)
-                latent = torch.randn((1000000,512),dtype=torch.float32, device="cuda")
+                latent = torch.randn((1000000,512),dtype=torch.float32, device=self.device)
                 latent_out = torch.nn.LeakyReLU(5)(mapping(latent))
                 self.gaussian_fit = {"mean": latent_out.mean(0), "std": latent_out.std(0)}
                 torch.save(self.gaussian_fit,"gaussian_fit.pt")
@@ -71,10 +74,10 @@ class PULSE(torch.nn.Module):
         # Generate latent tensor
         if(tile_latent):
             latent = torch.randn(
-                (batch_size, 1, 512), dtype=torch.float, requires_grad=True, device='cuda')
+                (batch_size, 1, 512), dtype=torch.float, requires_grad=True, device=self.device)
         else:
             latent = torch.randn(
-                (batch_size, 18, 512), dtype=torch.float, requires_grad=True, device='cuda')
+                (batch_size, 18, 512), dtype=torch.float, requires_grad=True, device=self.device)
 
         # Generate list of noise tensors
         noise = [] # stores all of the noise tensors
@@ -85,13 +88,13 @@ class PULSE(torch.nn.Module):
             res = (batch_size, 1, 2**(i//2+2), 2**(i//2+2))
 
             if(noise_type == 'zero' or i in [int(layer) for layer in bad_noise_layers.split('.')]):
-                new_noise = torch.zeros(res, dtype=torch.float, device='cuda')
+                new_noise = torch.zeros(res, dtype=torch.float, device=self.device)
                 new_noise.requires_grad = False
             elif(noise_type == 'fixed'):
-                new_noise = torch.randn(res, dtype=torch.float, device='cuda')
+                new_noise = torch.randn(res, dtype=torch.float, device=self.device)
                 new_noise.requires_grad = False
             elif (noise_type == 'trainable'):
-                new_noise = torch.randn(res, dtype=torch.float, device='cuda')
+                new_noise = torch.randn(res, dtype=torch.float, device=self.device)
                 if (i < num_trainable_noise_layers):
                     new_noise.requires_grad = True
                     noise_vars.append(new_noise)
@@ -121,7 +124,7 @@ class PULSE(torch.nn.Module):
         schedule_func = schedule_dict[lr_schedule]
         scheduler = torch.optim.lr_scheduler.LambdaLR(opt.opt, schedule_func)
         
-        loss_builder = LossBuilder(ref_im, loss_str, eps).cuda()
+        loss_builder = LossBuilder(ref_im, loss_str, eps).to(self.device)
 
         min_loss = np.inf
         min_l2 = np.inf
