@@ -1,74 +1,77 @@
-# PULSE: Self-Supervised Photo Upsampling via Latent Space Exploration of Generative Models
-Code accompanying CVPR'20 paper of the same title. Paper link: https://arxiv.org/pdf/2003.03808.pdf
+# PULSE: Amostragem de fotos auto-supervisionadas através da Exploração do Espaço Latente de Modelos Generativos
+Código que acompanha o papel CVPR'20 com o mesmo título. Ligação em papel: https://arxiv.org/pdf/2003.03808.pdf
 
-## NOTE
+## NOTA
 
-We have noticed a lot of concern that PULSE will be used to identify individuals whose faces have been blurred out. We want to emphasize that this is impossible - **PULSE makes imaginary faces of people who do not exist, which should not be confused for real people.** It will **not** help identify or reconstruct the original image.
+Temos notado uma grande preocupação de que o PULSE será utilizado para identificar indivíduos cujos rostos tenham sido esbatidos. Queremos enfatizar que isto é impossível - **PULSE faz caras imaginárias de pessoas que não existem, o que não deve ser confundido com pessoas reais.** Não ajudará*** a identificar ou reconstruir a imagem original.
 
-We also want to address concerns of bias in PULSE. **We have now included a new section in the [paper](https://arxiv.org/pdf/2003.03808.pdf) and an accompanying model card directly addressing this bias.**
+Queremos também abordar as preocupações de enviesamento em PULSE. **Incluímos agora uma nova secção no [papel](https://arxiv.org/pdf/2003.03808.pdf) e um modelo de cartão de acompanhamento abordando directamente este enviesamento.**
 
 ---
 
-![Transformation Preview](./readme_resources/014.jpeg)
-![Transformation Preview](./readme_resources/034.jpeg)
-![Transformation Preview](./readme_resources/094.jpeg)
+![Previsão da Transformação](./readme_resources/014.jpeg)
+![Previsão da Transformação](./readme_resources/034.jpeg)
+![Previsão da Transformação](./readme_resources/094.jpeg)
 
-Table of Contents
+Tabela de Conteúdos
 =================
-- [PULSE: Self-Supervised Photo Upsampling via Latent Space Exploration of Generative Models](#pulse-self-supervised-photo-upsampling-via-latent-space-exploration-of-generative-models)
-- [Table of Contents](#table-of-contents)
-  - [What does it do?](#what-does-it-do)
-  - [Usage](#usage)
+- (#pulse-self-supervised-photo-upsampling-via-latent-space-exploration-of-generative-models)
+- [Tabela de Conteúdos](#tabela de conteúdos)
+  - [O que é que faz?](#o que é que faz)
+  - [Utilização](#utilização)
     - [Prereqs](#prereqs)
-    - [Data](#data)
-    - [Applying PULSE](#applying-pulse)
-## What does it do? 
-Given a low-resolution input image, PULSE searches the outputs of a generative model (here, [StyleGAN](https://github.com/NVlabs/stylegan)) for high-resolution images that are perceptually realistic and downscale correctly.
+    - [Dados](#dados)
+    - [Aplicar PULSE](#aplicar-pulso)
+## O que é que faz? 
+Dada uma imagem de entrada de baixa resolução, PULSE procura as saídas de um modelo generativo (aqui, [StyleGAN](https://github.com/NVlabs/stylegan)) para imagens de alta resolução que são perceptualmente realistas e de baixa escala correctamente.
 
 ![Transformation Preview](./readme_resources/transformation.gif)
 
-## Usage
+## Utilização
 
-The main file of interest for applying PULSE is `run.py`. A full list of arguments with descriptions can be found in that file; here we describe those relevant to getting started.
+O ficheiro principal de interesse para a candidatura PULSE é `run.py`. Uma lista completa de argumentos com descrições pode ser encontrada nesse ficheiro; aqui descrevemos os que são relevantes para começar.
 
 ### Prereqs
 
-You will need to install cmake first (required for dlib, which is used for face alignment). Currently the code only works with CUDA installed (and therefore requires an appropriate GPU) and has been tested on Linux and Windows. For the full set of required Python packages, create a Conda environment from the provided YAML, e.g.
+Será necessário instalar primeiro o cmake (necessário para o dlib, que é utilizado para o alinhamento facial). Actualmente o código só funciona com CUDA instalado (e por isso requer uma GPU apropriada) e foi testado em Linux e Windows. Para o conjunto completo de pacotes Python necessários, criar um ambiente Conda a partir do YAML fornecido, por exemplo
 
 ```
 conda create -f pulse.yml 
 ```
-or (Anaconda on Windows):
+ou (Anaconda no Windows):
 ```
 conda env create -n pulse -f pulse.yml
 conda activate pulse
 ```
 
-In some environments (e.g. on Windows), you may have to edit the pulse.yml to remove the version specific hash on each dependency and remove any dependency that still throws an error after running ```conda env create...``` (such as readline)
+Em alguns ambientes (por exemplo, no Windows), poderá ter de editar o pulse.yml para remover o hash específico da versão em cada dependência e remover qualquer dependência que ainda lance um erro depois de executar ```conda env create...``` (tal como readline)
 ```
-dependencies
+dependências
   - blas=1.0=mkl
   ...
 ```
-to
+para
 ```
-dependencies
+dependências
   - blas=1.0
  ...
 ```
 
-Finally, you will need an internet connection the first time you run the code as it will automatically download the relevant pretrained model from Google Drive (if it has already been downloaded, it will use the local copy). In the event that the public Google Drive is out of capacity, add the files to your own Google Drive instead; get the share URL and replace the ID in the https://drive.google.com/uc?=ID links in ```align_face.py``` and ```PULSE.py``` with the new file ids from the share URL given by your own Drive file.
+Finalmente, necessitará de uma ligação à Internet na primeira vez que executar o código, pois este descarregará automaticamente o modelo pré-treinado relevante do Google Drive (se já tiver sido descarregado, utilizará a cópia local). No caso do Google Drive público estar fora de capacidade, adicione os ficheiros ao seu próprio Google Drive; obtenha o URL de partilha e substitua o ID nos links https://drive.google.com/uc?=ID em ```align_face.py```` e ``PULSE.py```` com os novos ids de ficheiro do URL de partilha dado pelo seu próprio ficheiro Drive.
  
 
-### Data
+#### Dados
 
-By default, input data for `run.py` should be placed in `./input/` (though this can be modified). However, this assumes faces have already been aligned and downscaled. If you have data that is not already in this form, place it in `realpics` and run `align_face.py` which will automatically do this for you. (Again, all directories can be changed by command line arguments if more convenient.) You will at this stage pic a downscaling factor. 
+Por defeito, os dados de entrada para `run.py` devem ser colocados em `./input/` (embora isto possa ser modificado). No entanto, isto pressupõe que os rostos já foram alinhados e reduzidos. Se tiver dados que ainda não estejam nesta forma, coloque-os em `./input/` e execute `align_face.py` que o fará automaticamente por si. (Mais uma vez, todos os directórios podem ser alterados por argumentos de linha de comando, se for mais conveniente). Nesta fase, irá escolher um factor de redução. 
 
-Note that if your data begins at a low resolution already, downscaling it further will retain very little information. In this case, you may wish to bicubically upsample (usually, to 1024x1024) and allow `align_face.py` to downscale for you.  
+Note que se os seus dados começarem já com uma resolução baixa, a redução de escala irá reter muito pouca informação. Neste caso, poderá desejar aumentar bicubicamente (normalmente, para 1024x1024) e permitir `align_face.py` a redução de escala para si.  
 
-### Applying PULSE
-Once your data is appropriately formatted, all you need to do is
+### Aplicar PULSE
+Uma vez que os seus dados estejam devidamente formatados, tudo o que precisa de fazer é
 ```
 python run.py
 ```
-Enjoy!
+Divirta-se!
+
+
+Traduzido com a versão gratuita do tradutor - www.DeepL.com/Translator
